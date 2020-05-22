@@ -1,12 +1,8 @@
-Kevin Ngo - CS 427
-Project 1 - wsu-crypt
-Professor Farhana Kabir
-Due February 29th, 2020 (due March 1st, 2020 with granted one day extension)
+Project - wsu-crypt
 
-Email:
-kevin.ngo2@wsu.edu
-OR
-kevineatmango@gmail.com
+NOTES:
+-Please do not copy and use my code! You are welcome to reference it.
+-There's a lot of inefficiencies in the encryption phase, which may eventually be worked on and redone.
 
 Included files:
 wsu-crypt.c - Program source code
