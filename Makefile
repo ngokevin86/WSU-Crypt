@@ -1,7 +1,5 @@
-#Kevin Ngo - CS 427
-#Project 1 - WSU Crypt (Makefile)
-#Professor Farhana Kabir
-#Due March 1st
+#Kevin Ngo
+#Project - WSU Crypt (Makefile)
 
 all: wsu-crypt.c
 	gcc -o wsu-crypt wsu-crypt.c -lm

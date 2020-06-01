@@ -1,7 +1,5 @@
-/* Kevin Ngo - CS 427
- * Project 1 - WSU Crypt
- * Professor Farhana Kabir
- * Due February 29th, 2020
+/* Kevin Ngo
+ * Project - WSU Crypt (Source File)
  */
 
 /*wsu-crypt.c
