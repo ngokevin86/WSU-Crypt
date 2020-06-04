@@ -56,8 +56,6 @@ struct subkeyStruct{
 
 //auxiliary functions
 int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base);
-int numPlaces(int n);
-long longConcat(long x, long y);
 uint16_t leftRotate(uint16_t* n, int steps , int size);
 uint16_t rightRotate(uint16_t* n, int steps, int size);
 uint64_t leftKeyRotate(uint64_t* n, int steps , int size);
@@ -395,21 +393,6 @@ int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 		exit(1);
 	}
 	return 0;
-}
-
-//simple recursion based off stackoverflow "How do I determine the number of digits of an integer in C?"
-int numPlaces(int n){
-	if(n < 10) return 1;
-	return 1 + numPlaces (n / 10);
-}
-
-//from stackoverflow "how to concatenate two integers in c"
-long longConcat(long x, long y){
-	long pow = 10;
-	while(y >= pow){
-		pow *= 10;
-	}
-	return x * pow + y;
 }
 
 //takes number n of size bits, rotates left by steps 
