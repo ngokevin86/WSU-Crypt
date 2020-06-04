@@ -61,8 +61,6 @@ struct subkeyStruct{
 
 //auxiliary functions
 int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base);
-int decimalToBinary(int n);
-int binaryToDecimal(long n);
 int numPlaces(int n);
 long longConcat(long x, long y);
 uint16_t leftRotate(uint16_t* n, int steps , int size);
@@ -339,20 +337,20 @@ int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 	
 	else if (base == 16){	//read 16 characters, otherwise tell user ciphertext is incorrect
 		for(int i = 0; i < 4; i++){
-			long result;
+			int result;
 			if(feof(fp)){	//eof was hit
 				result = 0;
 			}
 			else{
 				char text1[3];
-				if(fread(text1, 2, 1, fp)){
+				if(fread(text1, 2, 1, fp)){	//read two bytes
 					text1[3] = '\0';
 					int hexDec1 = (int)strtol(text1, NULL, 16);	//convert to decimal
 					if(errno != 0){	//doesn't handle characters not in base yet
 						fprintf(stderr, "Error during strtol: %s\n", strerror(errno));
 						exit(errno);
 					}
-					result = decimalToBinary(hexDec1);
+					result = hexDec1 << 8;	//bitshift left by 8
 				}
 				else{	//error or eof
 					if(errno != 0){	//error
@@ -366,7 +364,6 @@ int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 						result = 0;
 					}
 				}
-				
 				char text2[3];
 				if(fread(text2, 2, 1, fp)){
 					text2[3] = '\0';
@@ -375,37 +372,28 @@ int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 						fprintf(stderr, "Error during strtol: %s\n", strerror(errno));
 						exit(errno);
 					}
-					long hexDecVal = decimalToBinary(hexDec2);
-					int zeroFill = numPlaces(hexDecVal);
-					zeroFill = 8 - zeroFill;
-					result *= (pow(10, zeroFill));
-					result = longConcat(result, hexDecVal);
+					result ^= hexDec2;	//bitwise XOR into result
 				}
 				else{	//error or eof
 					if(errno != 0){	//error
 						fprintf(stderr, "Error during fread: %s\n", strerror(errno));
 						exit(errno);
 					}
-					else{	//eof
-						result *= 100000000;	//zero padding
-					}
 				}
 			}
-			//convert binary into decimal for storage
-			int decResult = binaryToDecimal(result);
 			//insert result
 			switch(i){
 				case 0:
-					currentBlock->word1 = decResult;
+					currentBlock->word1 = result;
 					break;
 				case 1:
-					currentBlock->word2 = decResult;
+					currentBlock->word2 = result;
 					break;
 				case 2:
-					currentBlock->word3 = decResult;
+					currentBlock->word3 = result;
 					break;
 				case 3:
-					currentBlock->word4 = decResult;
+					currentBlock->word4 = result;
 					break;
 				default:	//should never occur
 					printf("Something broke in the switch statement\n");
@@ -418,34 +406,6 @@ int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 		exit(1);
 	}
 	return 0;
-}
-
-//changes a decimal number into a binary representation of it in decimal
-int decimalToBinary(int n){
-	int binaryVal = 0;
-	int pos = 1;
-	int remainder;
-	while(n > 0){	//conversion
-		remainder = n % 2;
-		binaryVal += (pos * remainder);
-		n /= 2;
-		pos *= 10;
-	}
-	return binaryVal;
-}
-
-//changes the binary representation of a decimal number into its decimal form
-int binaryToDecimal(long n){
-	int decVal = 0;
-	int base = 1;
-	long remainder;
-	while(n > 0){
-		remainder = n % 10;
-		decVal += (base * remainder);
-		n /= 10;
-		base *= 2;
-	}
-	return decVal;
 }
 
 //simple recursion based off stackoverflow "How do I determine the number of digits of an integer in C?"
