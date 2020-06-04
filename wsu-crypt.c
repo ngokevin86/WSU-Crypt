@@ -32,7 +32,7 @@
 #include <errno.h>
 #include <stdint.h>
 
-#define DEBUG 0
+#define DEBUG 1
 #define TV2 0
 
 //struct for function F return value
@@ -76,7 +76,8 @@ int G(int w, int k0, int k1, int k2, int k3);
 int K(int x, uint64_t* key, int* mode);
 
 int main(int argc, char* argv[]){
-	if(argc != 4){
+	//input checks
+	if(argc != 4){	//too many arguments
 		printf("Usage: ./wsu-crypt <text.txt> <key.txt> <encryption mode (e or d)\n");
 		return 1;
 	}
@@ -179,6 +180,7 @@ int main(int argc, char* argv[]){
 		if(DEBUG){
 			printf("Obtained info before whitening:\n");
 			printf("Word1: %d\n", currentBlock->word1);
+			printf("Word1 in Hex: %x\n", currentBlock->word1);
 			printf("Word2: %d\n", currentBlock->word2);
 			printf("Word3: %d\n", currentBlock->word3);
 			printf("Word4: %d\n", currentBlock->word4);
@@ -279,12 +281,12 @@ int main(int argc, char* argv[]){
 
 //auxiliary functions
 //only supports decimal and hex
+//horrific mess ahead
 int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 	if(base == 10){
 		//int eofFlag = 0;
 		for(int i = 0; i < 4; i++){
-			long result;
-			//start getting binary digits
+			int result;
 			if(feof(fp)){	//end of file was set
 				result = 0;	//zero padding
 			}
@@ -301,41 +303,32 @@ int get64Bits(struct blockStruct* currentBlock, FILE* fp, int base){
 					result = 0;	//zero padding
 				}
 				else{	//not end of file
-					//convert text1
-					result = decimalToBinary(text1);	//get binary version of ASCII value
+					result = text1 << 8;	//bitshift char by 8
 					int text2 = fgetc(fp);	//get text2
 					if(feof(fp)){	//end of file or error hit
 						if(errno != 0){	//check if errno set
 							fprintf(stderr, "Error during fgetc: %s\n", strerror(errno));
 							exit(errno);
 						}
-						result *= 100000000;	//zero padding
 					}
 					else{	//convert text2
-						long asciiVal2 = decimalToBinary(text2);	//get binary version of ASCII value
-						//fill missing leading zeros from asciiVal2 into result
-						int zeroFill = numPlaces(asciiVal2);
-						zeroFill = 8 - zeroFill;
-						result *= (pow(10, zeroFill));
-						result = longConcat(result, asciiVal2);
+						result ^= text2;	//bitwise XOR text2 into result
 					}
 				}
 			}
-			//convert binary into decimal for storage
-			int decResult = binaryToDecimal(result);
 			//insert result
 			switch(i){
 				case 0:
-					currentBlock->word1 = decResult;
+					currentBlock->word1 = result;
 					break;
 				case 1:
-					currentBlock->word2 = decResult;
+					currentBlock->word2 = result;
 					break;
 				case 2:
-					currentBlock->word3 = decResult;
+					currentBlock->word3 = result;
 					break;
 				case 3:
-					currentBlock->word4 = decResult;
+					currentBlock->word4 = result;
 					break;
 				default:	//should never occur
 					printf("Something broke in the switch statement\n");
