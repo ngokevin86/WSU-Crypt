@@ -17,11 +17,7 @@
 	-The key file is expected to hold at least 64-bits of valid hex. It will not use any additional hex.
 	-plaintext.txt may have additional "0x00" padding at the end if the original text was not exactly a multiple
 		of 64-bits long.
-	-Set DEBUG to 1 (and recompile) to see debug information similar to that seen in "Test Vector 1" and "Test Vector 2"
-	-Set TV2 to 1 (and recompile) to encrypt/decrypt similar to "Test Vector 2". Know that the result from decrypting
-		will be in ASCII test and is not "human readable".
-		-Additionally, for encryption, just use any plaintext file that has exactly (or less than) 64-bits.
-			-Such as "01234567"
+	-Set DEBUG to 1 (and recompile) to see debug information
  */
 
 #include <stdio.h>
@@ -33,7 +29,6 @@
 #include <stdint.h>
 
 #define DEBUG 1
-#define TV2 0
 
 //struct for function F return value
 struct blockStruct{
@@ -169,12 +164,6 @@ int main(int argc, char* argv[]){
 				break;
 			}
 		}
-		if(TV2){	//set TV2 to 1 to test based off "Test Vector 2"
-			currentBlock->word1 = 0x0123;
-			currentBlock->word2 = 0x4567;
-			currentBlock->word3 = 0x89ab;
-			currentBlock->word4 = 0xcdef;
-		}
 		if(DEBUG){
 			printf("Obtained info before whitening:\n");
 			printf("Word1: %d\n", currentBlock->word1);
@@ -248,7 +237,7 @@ int main(int argc, char* argv[]){
 		currentBlock->word2 = y1 ^ keyBlock->word2;
 		currentBlock->word3 = y2 ^ keyBlock->word3;
 		currentBlock->word4 = y3 ^ keyBlock->word4;
-		if(DEBUG || TV2) printf("end hex: %x %x %x %x\n", currentBlock->word1, currentBlock->word2, \
+		if(DEBUG) printf("end hex: %x %x %x %x\n", currentBlock->word1, currentBlock->word2, \
 			currentBlock->word3, currentBlock->word4);
 
 		if(encFlag){
